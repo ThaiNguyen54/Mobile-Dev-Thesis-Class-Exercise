@@ -3,6 +3,7 @@ package com.example.calculator;
 import androidx.appcompat.app.AppCompatActivity;
 
 //import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -20,6 +21,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MaterialButton button4, button5, button6, buttonPlus;
     MaterialButton button1, button2, button3, buttonMinus;
     MaterialButton buttonAC, button0, buttonDot, buttonEqual;
+
+    int historyCount = 0;
 
 
     @Override
@@ -49,11 +52,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         assignID(button0, R.id.bnt_0);
         assignID(buttonDot, R.id.bnt_dot);
         assignID(buttonEqual, R.id.btn_equal);
-
-
-
-
-
     }
 
     void assignID(MaterialButton bnt, int id) {
@@ -74,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if(buttonText.equals("=")){
             solution.setText(result.getText());
+            historyCount += 1;
             return;
         }
         if(buttonText.equals("C")){
@@ -103,5 +102,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (Exception e) {
             return "Error";
         }
+    }
+
+    public void sendMessage(View view) {
+        Intent intent = new Intent(this, HistoryActivity.class);
+        intent.putExtra("HistoryCount", String.valueOf(historyCount));
+        startActivity(intent);
     }
 }
