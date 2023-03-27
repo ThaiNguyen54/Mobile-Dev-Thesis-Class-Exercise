@@ -7,10 +7,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -87,6 +92,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             result.setText(finalResult);
         }
 
+        writeToFile("CalculateHistory.txt", calculateData);
+
+    }
+
+    public void writeToFile(String fileName, String content) {
+        File path = getApplicationContext().getFilesDir();
+        try{
+            FileOutputStream writer = new FileOutputStream(new File(path, fileName));
+            writer.write(content.getBytes());
+            writer.close();
+            Toast.makeText(getApplicationContext(), "wrote to file: " + fileName, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     String getResult(String data){
@@ -107,6 +126,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void sendMessage(View view) {
         Intent intent = new Intent(this, HistoryActivity.class);
         intent.putExtra("HistoryCount", String.valueOf(historyCount));
+        startActivity(intent);
+    }
+
+    public void next_exercise(View view) {
+        Intent intent = new Intent(this, TestAPI.class);
         startActivity(intent);
     }
 }

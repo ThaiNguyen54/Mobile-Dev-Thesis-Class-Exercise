@@ -30,23 +30,39 @@
                 app:cornerRadius="36dp"
                 android:onClick="sendMessage"/>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bnt_API"
+                style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_margin="12dp"
+                android:backgroundTint="@color/purple_500"
+                android:onClick="next_exercise"
+                android:text="API"
+                android:textColor="@color/white"
+                android:textSize="21dp"
+                app:cornerRadius="36dp"
+                app:layout_constraintBottom_toTopOf="@+id/txt_history"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/solution"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="0"
+                android:textAlignment="textEnd"
+                android:textColor="@color/black"
+                android:textSize="32dp" />
+
         </LinearLayout>
     </LinearLayout>
 
-
-    <TextView
-        android:id="@+id/solution"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_above="@id/result"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="0"
-        android:textAlignment="textEnd"
-        android:textColor="@color/black"
-        android:textSize="32dp" />
 
     <TextView
         android:id="@+id/result"

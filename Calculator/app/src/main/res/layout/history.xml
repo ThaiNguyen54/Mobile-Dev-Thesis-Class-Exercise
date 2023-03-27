@@ -15,5 +15,23 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:onClick="next_exercise"/>
+
+<!--    <com.google.android.material.button.MaterialButton-->
+<!--        android:id="@+id/bnt_API"-->
+<!--        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"-->
+<!--        android:layout_width="100dp"-->
+<!--        android:layout_height="100dp"-->
+<!--        android:layout_margin="12dp"-->
+<!--        android:backgroundTint="@color/purple_500"-->
+<!--        android:onClick="sendMessage"-->
+<!--        android:text="API"-->
+<!--        android:textColor="@color/white"-->
+<!--        android:textSize="21dp"-->
+<!--        app:cornerRadius="36dp"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/txt_history"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
 </androidx.constraintlayout.widget.ConstraintLayout>
