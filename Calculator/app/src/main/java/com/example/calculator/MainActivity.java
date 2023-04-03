@@ -5,17 +5,33 @@ import androidx.appcompat.app.AppCompatActivity;
 //import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -26,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MaterialButton button4, button5, button6, buttonPlus;
     MaterialButton button1, button2, button3, buttonMinus;
     MaterialButton buttonAC, button0, buttonDot, buttonEqual;
+
+    int ordNum = 1;
 
     int historyCount = 0;
 
@@ -92,16 +110,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             result.setText(finalResult);
         }
 
-        writeToFile("CalculateHistory.txt", calculateData);
+//        writeToFile("CalculateHistory.txt", calculateData);
+//        String[] history = new String[] {calculateData};
+//        writeToFile("history.json", history);
+
+        File path = getApplicationContext().getFilesDir();
+        Gson gson = new Gson();
+        HistoryOperation historyOperation = new HistoryOperation(calculateData, finalResult);
+        HistoryOperationObject historyOperationObject = new HistoryOperationObject(ordNum, historyOperation);
+//        String json = gson.toJson(historyOperationObject);
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put(Integer.toString(ordNum), historyOperation);
+            FileOutputStream fileOutputStream = new FileOutputStream(new File(path, "history.json"));
+//            fileOutputStream.write(jsonObject);
+//            fileOutputStream.close();
+            String json = gson.toJson(jsonObject);
+            FileWriter fileWriter = new FileWriter(new File(path, "history.json"));
+            fileWriter.append(json);
+            fileWriter.flush();
+            fileWriter.close();
+            ordNum += 1;
+            Log.d("SAVE", "SUCCESSFULLY");
+            Toast.makeText(getApplicationContext(), "wrote to file: " + "history.json", Toast.LENGTH_SHORT).show();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+//        try {
+//            FileWriter fileWriter = new FileWriter(new File(path, "history.json"));
+//            fileWriter.append(json);
+//            fileWriter.flush();
+//            fileWriter.close();
+//            ordNum += 1;
+//            Log.d("SAVE", "SUCCESSFULLY");
+//            Toast.makeText(getApplicationContext(), "wrote to file: " + "history.json", Toast.LENGTH_SHORT).show();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+
 
     }
 
-    public void writeToFile(String fileName, String content) {
+    public void writeToFile(String fileName, String[] content) {
         File path = getApplicationContext().getFilesDir();
+        String filePath = path + "/" + fileName;
+        Gson gson = new Gson();
         try{
-            FileOutputStream writer = new FileOutputStream(new File(path, fileName));
-            writer.write(content.getBytes());
-            writer.close();
+            gson.toJson(content, new FileWriter(fileName));
+//            FileOutputStream writer = new FileOutputStream(new File(path, fileName));
+//            writer.write(content.getBytes());
+//            writer.close();
             Toast.makeText(getApplicationContext(), "wrote to file: " + fileName, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
