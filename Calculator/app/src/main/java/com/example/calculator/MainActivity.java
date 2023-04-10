@@ -19,6 +19,7 @@ import org.mozilla.javascript.Scriptable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -98,37 +99,66 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void run() {
                     File path = getApplicationContext().getFilesDir();
 
-                    // Read history.json file
-                    File readFrom = new File(path, "history.json");
-                    String JSON_str_historyOperationList;
-                    byte[] byte_historyOperationList = new byte[(int) readFrom.length()];
-                    Type listType = new TypeToken<List<HistoryOperation>>(){}.getType();
-
-                    try {
-                        FileInputStream inputStream = new FileInputStream(readFrom);
-                        inputStream.read(byte_historyOperationList);
-                        JSON_str_historyOperationList = new String(byte_historyOperationList);
-                        ArrayList<HistoryOperation> historyOperationArrayList = gson.fromJson(JSON_str_historyOperationList, listType);
-                        if (historyOperationArrayList.size() >= 10) {
-                            historyOperationArrayList.remove(0);
-                        }
-
-                        // After reading the history.json,
-                        // then we append a new operation the history operation list for saving
-                        HistoryOperation historyOperation = new HistoryOperation(solution.getText().toString(), result.getText().toString());
-                        historyOperationArrayList.add(historyOperation);
-                        String historyOperationString = gson.toJson(historyOperationArrayList);
-                        FileOutputStream writer = new FileOutputStream(new File(path, "history.json"));
-                        writer.write(historyOperationString.getBytes());
-                        writer.close();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "wrote to file: history.json" , Toast.LENGTH_SHORT).show();
+                    // Check if history.json exist
+                    File historyFile = new File(path + "/history.json");
+                    boolean isHistoryFileExist = historyFile.exists();
+                    if (isHistoryFileExist == false) {
+                        try{
+                            FileOutputStream writer = new FileOutputStream(new File(path, "history.json"));
+                            HistoryOperation historyOperation = new HistoryOperation(solution.getText().toString(), result.getText().toString());
+                            List<HistoryOperation> list_HistoryOperation = new ArrayList<>();
+                            list_HistoryOperation.add(historyOperation);
+                            String str_HistoryOperationJson = gson.toJson(list_HistoryOperation);
+                            try {
+                                FileOutputStream fileOutputStream = new FileOutputStream(new File(path, "history.json"));
+                                fileOutputStream.write(str_HistoryOperationJson.getBytes());
+                                fileOutputStream.close();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "wrote to file: history.json" , Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        // Read history.json file
+                        File readFrom = new File(path, "history.json");
+                        String JSON_str_historyOperationList;
+                        byte[] byte_historyOperationList = new byte[(int) readFrom.length()];
+                        Type listType = new TypeToken<List<HistoryOperation>>(){}.getType();
+
+                        try {
+                            FileInputStream inputStream = new FileInputStream(readFrom);
+                            inputStream.read(byte_historyOperationList);
+                            JSON_str_historyOperationList = new String(byte_historyOperationList);
+                            ArrayList<HistoryOperation> historyOperationArrayList = gson.fromJson(JSON_str_historyOperationList, listType);
+                            int a = historyOperationArrayList.size();
+                            if (historyOperationArrayList.size() >= 10) {
+                                historyOperationArrayList.remove(0);
+                            }
+
+                            // After reading the history.json,
+                            // then we append a new operation the history operation list for saving
+                            HistoryOperation historyOperation = new HistoryOperation(solution.getText().toString(), result.getText().toString());
+                            historyOperationArrayList.add(historyOperation);
+                            String historyOperationString = gson.toJson(historyOperationArrayList);
+                            FileOutputStream writer = new FileOutputStream(new File(path, "history.json"));
+                            writer.write(historyOperationString.getBytes());
+                            writer.close();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "wrote to file: history.json" , Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             });
