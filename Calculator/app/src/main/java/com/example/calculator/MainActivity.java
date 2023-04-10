@@ -10,12 +10,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -26,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MaterialButton button4, button5, button6, buttonPlus;
     MaterialButton button1, button2, button3, buttonMinus;
     MaterialButton buttonAC, button0, buttonDot, buttonEqual;
+    Gson gson = new Gson();
 
     int historyCount = 0;
 
@@ -76,8 +84,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         if(buttonText.equals("=")){
-            solution.setText(result.getText());
+//            solution.setText(result.getText());
+            String finalResult = getResult(calculateData);
+
+            if(!finalResult.equals("Error")){
+                result.setText(finalResult);
+            }
             historyCount += 1;
+
+            // Starting to save history operation
+            Thread SaveHistoryOperation = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    File path = getApplicationContext().getFilesDir();
+
+                    // Read history.json file
+                    File readFrom = new File(path, "history.json");
+                    String JSON_str_historyOperationList;
+                    byte[] byte_historyOperationList = new byte[(int) readFrom.length()];
+                    Type listType = new TypeToken<List<HistoryOperation>>(){}.getType();
+
+                    try {
+                        FileInputStream inputStream = new FileInputStream(readFrom);
+                        inputStream.read(byte_historyOperationList);
+                        JSON_str_historyOperationList = new String(byte_historyOperationList);
+                        ArrayList<HistoryOperation> historyOperationArrayList = gson.fromJson(JSON_str_historyOperationList, listType);
+                        if (historyOperationArrayList.size() >= 10) {
+                            historyOperationArrayList.remove(0);
+                        }
+
+                        // After reading the history.json,
+                        // then we append a new operation the history operation list for saving
+                        HistoryOperation historyOperation = new HistoryOperation(solution.getText().toString(), result.getText().toString());
+                        historyOperationArrayList.add(historyOperation);
+                        String historyOperationString = gson.toJson(historyOperationArrayList);
+                        FileOutputStream writer = new FileOutputStream(new File(path, "history.json"));
+                        writer.write(historyOperationString.getBytes());
+                        writer.close();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "wrote to file: history.json" , Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            SaveHistoryOperation.start();
             return;
         }
         if(buttonText.equals("C")){
@@ -86,14 +141,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             calculateData = calculateData + buttonText;
         }
         solution.setText(calculateData);
-        String finalResult = getResult(calculateData);
-
-        if(!finalResult.equals("Error")){
-            result.setText(finalResult);
-        }
-
-        writeToFile("CalculateHistory.txt", calculateData);
-
     }
 
     public void writeToFile(String fileName, String content) {
